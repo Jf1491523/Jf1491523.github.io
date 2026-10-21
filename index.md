@@ -1,6 +1,6 @@
 # Welcome to My Portfolio Hello! My name is Jf1491523.
 ## Projects
-- Project 1: 
+- Project 1: [My First Game](IdiomLifeDictionary.md) 
 - Project 2: 
 ## About Me
 Click here to learn more → [About Me](about.md)

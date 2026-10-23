@@ -1,7 +1,7 @@
 # Welcome to My Portfolio Hello! My name is Jf1491523.
 ## Projects
 - Project 1: [Idiom Life Dictionary](java--projects/IdiomLifeDictionary.java)
-- Project 2: [First Array](java--projects/FirstArray.java)
+- Project 2: 
 ## About Me
 Click here to learn more → [About Me](about.md)
 

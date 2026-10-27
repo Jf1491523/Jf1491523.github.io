@@ -2,6 +2,7 @@
 ## Projects
 - Project 1: [Idiom Life Dictionary](java--projects/IdiomLifeDictionary.java)
 - Project 2: [FirstArray](java--projects/FirstArray.java)
+- Project 3: 
 ## About Me
 Click here to learn more → [About Me](about.md)
 

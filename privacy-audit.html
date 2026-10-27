@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Play a privacy auditor and investigate a navigation app's location, route history, and data-sharing settings.">
+  <title>App Permission Audit | Privacy Auditor</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #edf2ff;
+      --muted: #a5b1ca;
+      --surface: #151d31;
+      --surface-raised: #1d2941;
+      --border: #34425e;
+      --accent: #85f1c1;
+      --accent-dark: #143b36;
+      --warning: #ffca76;
+      --danger: #ff808c;
+      --blue: #a8c7ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 12% 0%, #243353 0, #111827 46rem);
+      color: var(--ink);
+      font: 16px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--accent); }
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .page { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 52px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 36px; }
+    .back-link { text-decoration: none; font-weight: 700; }
+    .case-label { color: var(--muted); font-size: .88rem; letter-spacing: .08em; text-transform: uppercase; }
+    .hero { max-width: 760px; margin-bottom: 28px; }
+    .eyebrow { color: var(--accent); font-size: .84rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 8px 0 12px; font-size: clamp(2.2rem, 6vw, 4rem); line-height: 1.05; letter-spacing: -.045em; }
+    .hero p { color: var(--muted); font-size: 1.08rem; margin: 0; }
+
+    .briefing {
+      margin: 24px 0;
+      padding: 16px 18px;
+      border: 1px solid #496184;
+      border-left: 4px solid var(--blue);
+      border-radius: 12px;
+      background: #18243a;
+      color: #dce8ff;
+    }
+
+    .briefing strong { color: white; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr); gap: 22px; align-items: start; }
+    .panel { padding: 22px; border: 1px solid var(--border); border-radius: 18px; background: rgb(21 29 49 / 94%); box-shadow: 0 18px 55px rgb(0 0 0 / 18%); }
+    .panel-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    h2 { margin: 0; font-size: 1.25rem; }
+    .subheading { color: var(--muted); margin: 4px 0 0; font-size: .92rem; }
+    .phone-top { width: 105px; height: 6px; margin: 0 auto 20px; border-radius: 99px; background: #465572; }
+
+    .setting-group { padding: 16px 0; border-top: 1px solid var(--border); }
+    .setting-title { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .setting-title strong { display: block; }
+    .setting-title small { display: block; margin-top: 3px; color: var(--muted); }
+    .choice-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .choice {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #111827;
+      cursor: pointer;
+      font-size: .9rem;
+    }
+    .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-dark); }
+    .choice input { accent-color: var(--accent); }
+    .toggle { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+    .toggle input { width: 19px; height: 19px; accent-color: var(--accent); }
+    .agreement {
+      margin-top: 4px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #101827;
+      color: #d2dcef;
+      font-size: .92rem;
+    }
+    .agreement p { margin: 0 0 10px; }
+
+    .meter-card { padding: 17px; border: 1px solid var(--border); border-radius: 14px; background: #111827; }
+    .meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .meter-head strong { font-size: 1.05rem; }
+    .meter-number { font-size: 1.5rem; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .meter-track { height: 13px; overflow: hidden; margin: 12px 0 8px; border-radius: 99px; background: #344056; }
+    .meter-fill { width: 0; height: 100%; border-radius: inherit; background: var(--danger); transition: width .3s ease, background .3s ease; }
+    .meter-caption { color: var(--muted); font-size: .86rem; }
+    .status { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .status.high { color: #ffd9dc; background: #582a37; }
+    .status.medium { color: #ffe4b2; background: #574222; }
+    .status.low { color: #bcffdf; background: #174436; }
+
+    .feedback { min-height: 132px; margin-top: 14px; padding: 16px; border-left: 3px solid var(--warning); border-radius: 10px; background: #28251f; }
+    .feedback h3 { margin: 0 0 6px; font-size: 1rem; color: var(--warning); }
+    .feedback p { margin: 0; color: #e6dfd1; font-size: .94rem; }
+    .score-row { display: flex; justify-content: space-between; gap: 12px; margin: 20px 0 10px; color: var(--muted); }
+    .score-row strong { color: var(--ink); }
+    .audit-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .audit-item label { display: flex; gap: 10px; align-items: start; padding: 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+    .audit-item label:hover { border-color: #7084a7; }
+    .audit-item input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+    .audit-item span { font-size: .9rem; }
+    .audit-item small { display: block; margin-top: 3px; color: var(--muted); }
+    .result { min-height: 25px; margin: 14px 0 0; color: var(--accent); font-weight: 750; }
+    .legal-note { margin: 22px 2px 0; color: var(--muted); font-size: .82rem; }
+    .reset-button { padding: 8px 12px; border: 1px solid var(--border); border-radius: 9px; background: #111827; cursor: pointer; }
+    .reset-button:hover { border-color: var(--accent); }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+    @media (max-width: 760px) {
+      .workspace { grid-template-columns: 1fr; }
+      .topbar { margin-bottom: 26px; }
+      .panel { padding: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="topbar" aria-label="Main navigation">
+      <a class="back-link" href="index.md">← Portfolio home</a>
+      <span class="case-label">Case file 001 · Navigation app</span>
+    </nav>
+
+    <header class="hero">
+      <div class="eyebrow">Interactive privacy challenge</div>
+      <h1>App Permission Audit</h1>
+      <p>You are the Privacy Auditor. Review a new navigation app's settings, find risky data practices, and reduce its data exposure before approving launch.</p>
+    </header>
+
+    <aside class="briefing">
+      <strong>Your mission:</strong> Adjust the app permissions to protect its user, then check every active violation you identify. Earn one audit point for each correct finding.
+    </aside>
+
+    <section class="workspace" aria-label="Privacy audit simulator">
+      <section class="panel" aria-labelledby="phone-title">
+        <div class="phone-top" aria-hidden="true"></div>
+        <div class="panel-heading">
+          <div>
+            <h2 id="phone-title">Wayfinder · App settings</h2>
+            <p class="subheading">Review what the app can access and keep.</p>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-title">
+            <div><strong>Location access</strong><small>Choose when Wayfinder can use GPS.</small></div>
+          </div>
+          <div class="choice-row" role="radiogroup" aria-label="Location access">
+            <label class="choice"><input type="radio" name="location" value="always" checked> Always</label>
+            <label class="choice"><input type="radio" name="location" value="while"> While using</label>
+            <label class="choice"><input type="radio" name="location" value="never"> Never</label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-title">
+            <div><strong>Background tracking</strong><small>Collect location when the app is closed.</small></div>
+            <label class="toggle"><input id="background" type="checkbox" checked> <span>On</span></label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-title">
+            <div><strong>Save route history</strong><small>Keep a record of places and trips.</small></div>
+            <label class="toggle"><input id="history" type="checkbox" checked> <span>On</span></label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-title">
+            <div><strong>Share data with advertisers</strong><small>Share location-based activity with third parties.</small></div>
+            <label class="toggle"><input id="sharing" type="checkbox" checked> <span>On</span></label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-title">
+            <div><strong>Terms of service · Section 8</strong><small>Read the agreement before approving.</small></div>
+          </div>
+          <div class="agreement">
+            <p>“To improve our services, Wayfinder may collect precise location in the background, retain route history indefinitely, and share activity with selected advertising partners.”</p>
+            <label class="toggle"><input id="terms" type="checkbox" checked> <span>I accept these terms</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="audit-title">
+        <div class="panel-heading">
+          <div>
+            <h2 id="audit-title">Audit dashboard</h2>
+            <p class="subheading">Your choices update the exposure meter live.</p>
+          </div>
+          <button class="reset-button" id="reset" type="button">Reset case</button>
+        </div>
+
+        <div class="meter-card" aria-label="Data leak risk meter">
+          <div class="meter-head">
+            <strong>Data exposure risk</strong>
+            <span class="meter-number" id="meter-number">100%</span>
+          </div>
+          <div class="meter-track" id="meter-track" role="progressbar" aria-label="Data exposure risk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+            <div class="meter-fill" id="meter-fill"></div>
+          </div>
+          <div class="meter-head">
+            <span class="meter-caption">Estimated unnecessary data exposure</span>
+            <span class="status high" id="risk-status">High risk</span>
+          </div>
+        </div>
+
+        <div class="feedback" aria-live="polite" aria-atomic="true">
+          <h3 id="feedback-title">Critical finding: location is always on</h3>
+          <p id="feedback-text">Always-on GPS plus background tracking can reveal a person's home address and daily routine, including when they are away. This conflicts with data minimization (GDPR Article 5(1)(c)) and the course ethics standard 5.3.4 cited in this activity.</p>
+        </div>
+
+        <div class="score-row">
+          <span>Findings correctly flagged</span>
+          <strong><span id="score">0</span> / <span id="total">5</span> points</strong>
+        </div>
+        <ul class="audit-list" aria-label="Flag active violations">
+          <li class="audit-item"><label><input type="checkbox" data-finding="location"><span><strong>Excessive location access</strong><small>GPS access exceeds what navigation needs.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="background"><span><strong>Background collection</strong><small>Location is collected outside an active trip.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="history"><span><strong>Indefinite route retention</strong><small>Trip records are kept without a deletion limit.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="sharing"><span><strong>Third-party data sharing</strong><small>Personal activity is shared with advertisers.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="terms"><span><strong>Overbroad agreement</strong><small>The terms disclose broad collection and sharing.</small></span></label></li>
+        </ul>
+        <p class="result" id="result" aria-live="polite"></p>
+        <p class="legal-note">Educational simulation only; the risk score is illustrative, not a legal assessment. GDPR references are to Article 5(1)(b), (c), and (e), covering purpose limitation, data minimization, and storage limitation.</p>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const locationInputs = [...document.querySelectorAll('input[name="location"]')];
+      const controls = {
+        background: document.getElementById("background"),
+        history: document.getElementById("history"),
+        sharing: document.getElementById("sharing"),
+        terms: document.getElementById("terms")
+      };
+      const findingInputs = [...document.querySelectorAll("[data-finding]")];
+      const meterNumber = document.getElementById("meter-number");
+      const meterTrack = document.getElementById("meter-track");
+      const meterFill = document.getElementById("meter-fill");
+      const riskStatus = document.getElementById("risk-status");
+      const feedbackTitle = document.getElementById("feedback-title");
+      const feedbackText = document.getElementById("feedback-text");
+      const scoreDisplay = document.getElementById("score");
+      const result = document.getElementById("result");
+
+      const getState = () => ({
+        location: locationInputs.find((input) => input.checked).value,
+        background: controls.background.checked,
+        history: controls.history.checked,
+        sharing: controls.sharing.checked,
+        terms: controls.terms.checked
+      });
+
+      const getActiveFindings = (state) => ({
+        location: state.location === "always",
+        background: state.background,
+        history: state.history,
+        sharing: state.sharing,
+        terms: state.terms
+      });
+
+      function update() {
+        let state = getState();
+        if (state.location !== "always" && state.background) {
+          controls.background.checked = false;
+          state = getState();
+        }
+        controls.background.disabled = state.location !== "always";
+        Object.values(controls).forEach((input) => {
+          input.closest("label").querySelector("span").textContent =
+            input.id === "terms"
+              ? input.checked ? "I accept these terms" : "I do not accept these terms"
+              : input.checked ? "On" : "Off";
+        });
+        const active = getActiveFindings(state);
+        findingInputs.forEach((input) => {
+          if (!active[input.dataset.finding]) input.checked = false;
+        });
+        const risk = Math.min(100,
+          (state.location === "always" ? 30 : state.location === "while" ? 12 : 0) +
+          (state.background ? 20 : 0) +
+          (state.history ? 18 : 0) +
+          (state.sharing ? 22 : 0) +
+          (state.terms ? 10 : 0));
+        const checkedCount = findingInputs.filter((input) => input.checked && active[input.dataset.finding]).length;
+        const activeCount = Object.values(active).filter(Boolean).length;
+
+        meterNumber.textContent = `${risk}%`;
+        meterTrack.setAttribute("aria-valuenow", String(risk));
+        meterFill.style.width = `${risk}%`;
+        meterFill.style.background = risk >= 65 ? "var(--danger)" : risk >= 30 ? "var(--warning)" : "var(--accent)";
+        riskStatus.textContent = risk >= 65 ? "High risk" : risk >= 30 ? "Needs review" : "Lower risk";
+        riskStatus.className = `status ${risk >= 65 ? "high" : risk >= 30 ? "medium" : "low"}`;
+        scoreDisplay.textContent = String(checkedCount);
+        document.getElementById("total").textContent = String(activeCount);
+        result.textContent = activeCount > 0 && checkedCount === activeCount
+          ? "Case complete! You flagged every active violation. Great audit work."
+          : checkedCount > 0
+            ? `${checkedCount} correct finding${checkedCount === 1 ? "" : "s"} flagged. Keep reviewing the active settings.`
+            : "";
+
+        if (state.location === "always") {
+          feedbackTitle.textContent = "Critical finding: location is always on";
+          feedbackText.textContent = "Always-on GPS can reveal a person's home address and daily routine, including when they are away. This collects more data than a navigation trip requires, conflicting with data minimization (GDPR Article 5(1)(c)) and the course ethics standard 5.3.4 cited in this activity.";
+        } else if (state.location === "while") {
+          feedbackTitle.textContent = "Location limited to active use";
+          feedbackText.textContent = "GPS is limited to active app use, and background tracking is disabled because this permission does not allow collection after the app closes. Review route history and sharing separately to reduce remaining exposure.";
+        } else {
+          feedbackTitle.textContent = "GPS permission denied";
+          feedbackText.textContent = "The app cannot access live GPS, which protects location privacy but may disable turn-by-turn navigation. Consider 'While using' as a purpose-limited compromise when a user actively needs directions.";
+        }
+
+        if (state.history && state.sharing) {
+          feedbackText.textContent += " Saved routes combined with advertiser sharing can expose sensitive destinations. Set a short retention period and turn off third-party sharing.";
+        } else if (state.history) {
+          feedbackText.textContent += " Route history is still being retained indefinitely; a short, clearly stated deletion period would better follow storage limitation (GDPR Article 5(1)(e)).";
+        } else if (state.sharing) {
+          feedbackText.textContent += " Third-party sharing remains on; navigation data should not be shared with advertisers without a specific, informed choice.";
+        }
+      }
+
+      [...locationInputs, ...Object.values(controls)].forEach((input) => input.addEventListener("change", update));
+
+      findingInputs.forEach((input) => {
+        input.addEventListener("change", () => {
+          const active = getActiveFindings(getState());
+          if (input.checked && !active[input.dataset.finding]) {
+            input.checked = false;
+            result.textContent = "That issue is no longer active with the current settings. Flag the active risks shown in the app.";
+            return;
+          }
+          update();
+        });
+      });
+
+      document.getElementById("reset").addEventListener("click", () => {
+        locationInputs.find((input) => input.value === "always").checked = true;
+        Object.values(controls).forEach((input) => { input.checked = true; });
+        findingInputs.forEach((input) => { input.checked = false; });
+        update();
+        locationInputs[0].focus();
+      });
+
+      update();
+    })();
+  </script>
+</body>
+</html>

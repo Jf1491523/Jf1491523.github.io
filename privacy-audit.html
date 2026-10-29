@@ -119,12 +119,37 @@
     .legal-note { margin: 22px 2px 0; color: var(--muted); font-size: .82rem; }
     .reset-button { padding: 8px 12px; border: 1px solid var(--border); border-radius: 9px; background: #111827; cursor: pointer; }
     .reset-button:hover { border-color: var(--accent); }
+    .learning-nav { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 24px 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: #151d31; }
+    .learning-nav a { font-weight: 700; }
+    .home-screen { max-width: 760px; margin: 0 auto; padding: 38px; text-align: center; }
+    .home-screen h1 { margin: 10px 0 14px; }
+    .home-screen > p { max-width: 570px; margin: 0 auto; color: var(--muted); font-size: 1.05rem; }
+    .home-highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 26px 0; text-align: left; }
+    .home-highlight { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: #111827; }
+    .home-highlight strong { display: block; color: var(--accent); }
+    .home-highlight span { display: block; margin-top: 4px; color: var(--muted); font-size: .88rem; }
+    .start-button { padding: 11px 20px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-dark); color: var(--ink); font-weight: 800; cursor: pointer; }
+    .start-button:hover { background: #1b5148; }
+    .home-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px; margin-top: 22px; font-size: .9rem; }
+    .learning-section { margin-top: 22px; scroll-margin-top: 20px; }
+    .learning-section .panel { height: 100%; }
+    .learning-section p { color: #d2dcef; }
+    .quiz-question { margin: 18px 0; padding: 16px 0 0; border: 0; border-top: 1px solid var(--border); }
+    .quiz-question legend { padding: 0; font-weight: 750; }
+    .quiz-option { display: flex; gap: 9px; align-items: start; margin-top: 10px; color: #d2dcef; cursor: pointer; }
+    .quiz-option input { margin-top: 5px; accent-color: var(--accent); }
+    .quiz-result { min-height: 1.6em; margin: 14px 0 0; color: var(--accent); font-weight: 750; }
+    .source-list { padding-left: 22px; }
+    .source-list li + li { margin-top: 18px; }
+    .source-list p { margin: 6px 0; }
     :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 
     @media (max-width: 760px) {
       .workspace { grid-template-columns: 1fr; }
       .topbar { margin-bottom: 26px; }
       .panel { padding: 18px; }
+      .home-screen { padding: 26px 18px; }
+      .home-highlights { grid-template-columns: 1fr; text-align: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -139,15 +164,41 @@
       <span class="case-label">Case file 001 · Navigation app</span>
     </nav>
 
+    <section class="home-screen panel" id="home-screen" aria-labelledby="home-title">
+      <div class="eyebrow">Interactive privacy challenge</div>
+      <h1 id="home-title">App Permission Audit</h1>
+      <p>Step into the role of a privacy auditor. Review a navigation app's settings, identify risky practices, and make choices that protect its users.</p>
+      <div class="home-highlights" aria-label="What you can do">
+        <div class="home-highlight"><strong>Inspect</strong><span>Review location, route history, and sharing settings.</span></div>
+        <div class="home-highlight"><strong>Learn</strong><span>Explore practical computer law and ethics guidance.</span></div>
+        <div class="home-highlight"><strong>Test yourself</strong><span>Check your understanding with a short quiz.</span></div>
+      </div>
+      <button class="start-button" id="start-audit" type="button">Start the audit</button>
+      <nav class="home-links" aria-label="Learning sections">
+        <a href="#computer-laws">Computer laws</a>
+        <a href="#ethics">Ethics</a>
+        <a href="#quiz">Quiz</a>
+        <a href="#sources">Sources</a>
+      </nav>
+    </section>
+
+    <div id="audit-app" hidden>
     <header class="hero">
       <div class="eyebrow">Interactive privacy challenge</div>
-      <h1>App Permission Audit</h1>
+      <h1 tabindex="-1">App Permission Audit</h1>
       <p>You are the Privacy Auditor. Review a new navigation app's settings, find risky data practices, and reduce its data exposure before approving launch.</p>
     </header>
 
     <aside class="briefing">
-      <strong>Your mission:</strong> Adjust the app permissions to protect its user, then check every active violation you identify. Earn one audit point for each correct finding.
+      <strong>Your mission:</strong> Review all five practices, adjust the settings to protect the user, flag active violations, and leave acceptable practices unchecked. Earn one point for each correct decision; the score stays out of five as you improve the app.
     </aside>
+
+    <nav class="learning-nav" aria-label="Learning sections">
+      <a href="#computer-laws">Computer laws</a>
+      <a href="#ethics">Ethics</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#sources">Sources</a>
+    </nav>
 
     <section class="workspace" aria-label="Privacy audit simulator">
       <section class="panel" aria-labelledby="phone-title">
@@ -164,8 +215,8 @@
             <div><strong>Location access</strong><small>Choose when Wayfinder can use GPS.</small></div>
           </div>
           <div class="choice-row" role="radiogroup" aria-label="Location access">
-            <label class="choice"><input type="radio" name="location" value="always" checked> Always</label>
-            <label class="choice"><input type="radio" name="location" value="while"> While using</label>
+            <label class="choice"><input type="radio" name="location" value="always"> Always</label>
+            <label class="choice"><input type="radio" name="location" value="while" checked> While using</label>
             <label class="choice"><input type="radio" name="location" value="never"> Never</label>
           </div>
         </div>
@@ -173,7 +224,7 @@
         <div class="setting-group">
           <div class="setting-title">
             <div><strong>Background tracking</strong><small>Collect location when the app is closed.</small></div>
-            <label class="toggle"><input id="background" type="checkbox" checked> <span>On</span></label>
+            <label class="toggle"><input id="background" type="checkbox"> <span>Off</span></label>
           </div>
         </div>
 
@@ -214,14 +265,14 @@
         <div class="meter-card" aria-label="Data leak risk meter">
           <div class="meter-head">
             <strong>Data exposure risk</strong>
-            <span class="meter-number" id="meter-number">100%</span>
+            <span class="meter-number" id="meter-number">50%</span>
           </div>
-          <div class="meter-track" id="meter-track" role="progressbar" aria-label="Data exposure risk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
-            <div class="meter-fill" id="meter-fill"></div>
+          <div class="meter-track" id="meter-track" role="progressbar" aria-label="Data exposure risk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+            <div class="meter-fill" id="meter-fill" style="width: 50%; background: var(--warning);"></div>
           </div>
           <div class="meter-head">
             <span class="meter-caption">Estimated unnecessary data exposure</span>
-            <span class="status high" id="risk-status">High risk</span>
+            <span class="status medium" id="risk-status">Needs review</span>
           </div>
         </div>
 
@@ -231,20 +282,74 @@
         </div>
 
         <div class="score-row">
-          <span>Findings correctly flagged</span>
+          <span>Audit decisions correct</span>
           <strong><span id="score">0</span> / <span id="total">5</span> points</strong>
         </div>
-        <ul class="audit-list" aria-label="Flag active violations">
-          <li class="audit-item"><label><input type="checkbox" data-finding="location"><span><strong>Excessive location access</strong><small>GPS access exceeds what navigation needs.</small></span></label></li>
-          <li class="audit-item"><label><input type="checkbox" data-finding="background"><span><strong>Background collection</strong><small>Location is collected outside an active trip.</small></span></label></li>
-          <li class="audit-item"><label><input type="checkbox" data-finding="history"><span><strong>Indefinite route retention</strong><small>Trip records are kept without a deletion limit.</small></span></label></li>
-          <li class="audit-item"><label><input type="checkbox" data-finding="sharing"><span><strong>Third-party data sharing</strong><small>Personal activity is shared with advertisers.</small></span></label></li>
-          <li class="audit-item"><label><input type="checkbox" data-finding="terms"><span><strong>Overbroad agreement</strong><small>The terms disclose broad collection and sharing.</small></span></label></li>
+        <ul class="audit-list" aria-label="Audit decisions: flag active violations and leave acceptable practices unchecked">
+          <li class="audit-item"><label><input type="checkbox" data-finding="location"><span><strong>Excessive location access</strong><small>Flag Always. While using is appropriate for turn-by-turn navigation.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="background"><span><strong>Background collection</strong><small>Flag collection outside an active trip. Off is the appropriate default.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="history"><span><strong>Indefinite route retention</strong><small>Flag routes kept without a deletion limit; off avoids unnecessary retention.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="sharing"><span><strong>Third-party data sharing</strong><small>Flag sharing personal activity with advertisers; off protects trip privacy.</small></span></label></li>
+          <li class="audit-item"><label><input type="checkbox" data-finding="terms"><span><strong>Overbroad agreement</strong><small>Flag acceptance of terms that permit broad collection and sharing.</small></span></label></li>
         </ul>
         <p class="result" id="result" aria-live="polite"></p>
         <p class="legal-note">Educational simulation only; the risk score is illustrative, not a legal assessment. GDPR references are to Article 5(1)(b), (c), and (e), covering purpose limitation, data minimization, and storage limitation.</p>
       </section>
     </section>
+
+    <section class="learning-section panel" id="computer-laws" aria-labelledby="laws-title">
+      <h2 id="laws-title">Computer laws: data protection</h2>
+      <p>The EU General Data Protection Regulation (GDPR) sets rules for handling personal data and protecting people’s privacy. It requires data to be processed lawfully, fairly, and transparently, for specified purposes, and limited to what is necessary. Personal data should not be kept longer than needed, and organizations must protect it with appropriate security and be able to demonstrate compliance. The GDPR also expects privacy protections to be built into systems and enabled by default, rather than added only after problems arise.</p>
+    </section>
+
+    <section class="learning-section panel" id="ethics" aria-labelledby="ethics-title">
+      <h2 id="ethics-title">Ethics in computing</h2>
+      <p>The ACM Code of Ethics asks computing professionals to contribute to society and human well-being, avoid harm, and be honest and trustworthy. It also emphasizes fairness, respect for privacy, and honoring confidentiality. In practice, an ethical developer considers how a system may affect people, collects only information that serves a clear purpose, and protects that information from misuse. Ethical responsibility applies even when a particular action is not explicitly prohibited by law.</p>
+    </section>
+
+    <section class="learning-section panel" id="quiz" aria-labelledby="quiz-title">
+      <h2 id="quiz-title">Quiz</h2>
+      <p class="subheading">Choose one answer for each question, then check your understanding.</p>
+      <form id="quiz-form">
+        <fieldset class="quiz-question">
+          <legend>1. What does GDPR data minimization mean?</legend>
+          <label class="quiz-option"><input type="radio" name="q1" value="a"> Collect every data point that might be useful later.</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="b"> Collect only personal data that is necessary for the stated purpose.</label>
+          <label class="quiz-option"><input type="radio" name="q1" value="c"> Keep all data permanently in case it is requested.</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>2. Which setting best follows privacy by default for a navigation app?</legend>
+          <label class="quiz-option"><input type="radio" name="q2" value="a"> Share each trip with advertisers automatically.</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b"> Track precise location even when no trip is active.</label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c"> Use location while navigating and avoid unnecessary collection.</label>
+        </fieldset>
+        <fieldset class="quiz-question">
+          <legend>3. Which action best reflects the ACM Code of Ethics?</legend>
+          <label class="quiz-option"><input type="radio" name="q3" value="a"> Protect users’ privacy and consider possible harms before launch.</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="b"> Treat user data as harmless if it is useful to the company.</label>
+          <label class="quiz-option"><input type="radio" name="q3" value="c"> Hide data practices if they are complicated to explain.</label>
+        </fieldset>
+        <button class="reset-button" type="submit">Check answers</button>
+        <p class="quiz-result" id="quiz-result" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="learning-section panel" id="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">Sources</h2>
+      <ul class="source-list">
+        <li>
+          <strong>ACM Code of Ethics and Professional Conduct</strong>
+          <p>The ACM Code describes responsibilities for computing professionals, including contributing to society and avoiding harm. It calls for honesty, fairness, respect for privacy, and protection of confidential information. It also encourages professionals to consider the consequences of their work and prioritize the public good.</p>
+          <a href="https://www.acm.org/code-of-ethics" target="_blank" rel="noopener noreferrer">Read the ACM Code of Ethics</a>
+        </li>
+        <li>
+          <strong>General Data Protection Regulation (GDPR)</strong>
+          <p>The GDPR is the European Union’s regulation for protecting personal data and establishing rights and responsibilities around its use. Its core principles include lawful and transparent processing, purpose limitation, data minimization, storage limitation, and security. It also requires organizations to demonstrate accountability and consider data protection in system design and default settings.</p>
+          <a href="https://gdpr-info.eu/" target="_blank" rel="noopener noreferrer">Read the GDPR text and articles</a>
+        </li>
+      </ul>
+    </section>
+    </div>
   </main>
 
   <script>
@@ -264,7 +369,21 @@
       const feedbackTitle = document.getElementById("feedback-title");
       const feedbackText = document.getElementById("feedback-text");
       const scoreDisplay = document.getElementById("score");
+      const totalDisplay = document.getElementById("total");
       const result = document.getElementById("result");
+      const homeScreen = document.getElementById("home-screen");
+      const auditApp = document.getElementById("audit-app");
+
+      function showAudit() {
+        homeScreen.hidden = true;
+        auditApp.hidden = false;
+        document.querySelector(".hero h1").focus();
+      }
+
+      document.getElementById("start-audit").addEventListener("click", showAudit);
+      document.querySelectorAll(".home-links a").forEach((link) => {
+        link.addEventListener("click", showAudit);
+      });
 
       const getState = () => ({
         location: locationInputs.find((input) => input.checked).value,
@@ -296,17 +415,14 @@
               : input.checked ? "On" : "Off";
         });
         const active = getActiveFindings(state);
-        findingInputs.forEach((input) => {
-          if (!active[input.dataset.finding]) input.checked = false;
-        });
         const risk = Math.min(100,
-          (state.location === "always" ? 30 : state.location === "while" ? 12 : 0) +
+          (state.location === "always" ? 30 : 0) +
           (state.background ? 20 : 0) +
           (state.history ? 18 : 0) +
           (state.sharing ? 22 : 0) +
           (state.terms ? 10 : 0));
-        const checkedCount = findingInputs.filter((input) => input.checked && active[input.dataset.finding]).length;
-        const activeCount = Object.values(active).filter(Boolean).length;
+        const correctCount = findingInputs.filter((input) =>
+          input.checked === active[input.dataset.finding]).length;
 
         meterNumber.textContent = `${risk}%`;
         meterTrack.setAttribute("aria-valuenow", String(risk));
@@ -314,20 +430,20 @@
         meterFill.style.background = risk >= 65 ? "var(--danger)" : risk >= 30 ? "var(--warning)" : "var(--accent)";
         riskStatus.textContent = risk >= 65 ? "High risk" : risk >= 30 ? "Needs review" : "Lower risk";
         riskStatus.className = `status ${risk >= 65 ? "high" : risk >= 30 ? "medium" : "low"}`;
-        scoreDisplay.textContent = String(checkedCount);
-        document.getElementById("total").textContent = String(activeCount);
-        result.textContent = activeCount > 0 && checkedCount === activeCount
-          ? "Case complete! You flagged every active violation. Great audit work."
-          : checkedCount > 0
-            ? `${checkedCount} correct finding${checkedCount === 1 ? "" : "s"} flagged. Keep reviewing the active settings.`
-            : "";
+        scoreDisplay.textContent = String(correctCount);
+        totalDisplay.textContent = String(findingInputs.length);
+        result.textContent = correctCount === findingInputs.length
+          ? risk === 0
+            ? "Audit complete! You correctly identified every violation and protected the app's user. The app is ready to approve."
+            : "Audit complete! You correctly distinguished active violations from acceptable practices. Now reduce the remaining exposure."
+          : `${correctCount} of ${findingInputs.length} audit decisions correct. Flag active violations and leave acceptable practices unchecked.`;
 
         if (state.location === "always") {
           feedbackTitle.textContent = "Critical finding: location is always on";
           feedbackText.textContent = "Always-on GPS can reveal a person's home address and daily routine, including when they are away. This collects more data than a navigation trip requires, conflicting with data minimization (GDPR Article 5(1)(c)) and the course ethics standard 5.3.4 cited in this activity.";
         } else if (state.location === "while") {
           feedbackTitle.textContent = "Location limited to active use";
-          feedbackText.textContent = "GPS is limited to active app use, and background tracking is disabled because this permission does not allow collection after the app closes. Review route history and sharing separately to reduce remaining exposure.";
+          feedbackText.textContent = "GPS is limited to active app use, and background tracking is off. This is an appropriate, purpose-limited setting for navigation.";
         } else {
           feedbackTitle.textContent = "GPS permission denied";
           feedbackText.textContent = "The app cannot access live GPS, which protects location privacy but may disable turn-by-turn navigation. Consider 'While using' as a purpose-limited compromise when a user actively needs directions.";
@@ -340,25 +456,43 @@
         } else if (state.sharing) {
           feedbackText.textContent += " Third-party sharing remains on; navigation data should not be shared with advertisers without a specific, informed choice.";
         }
+        if (state.terms) {
+          feedbackText.textContent += " The broad terms are still accepted; do not approve them without narrowing collection, retention, and sharing.";
+        }
       }
 
       [...locationInputs, ...Object.values(controls)].forEach((input) => input.addEventListener("change", update));
 
-      findingInputs.forEach((input) => {
-        input.addEventListener("change", () => {
-          const active = getActiveFindings(getState());
-          if (input.checked && !active[input.dataset.finding]) {
-            input.checked = false;
-            result.textContent = "That issue is no longer active with the current settings. Flag the active risks shown in the app.";
-            return;
-          }
-          update();
-        });
+      findingInputs.forEach((input) => input.addEventListener("change", update));
+
+      const quizForm = document.getElementById("quiz-form");
+      const quizResult = document.getElementById("quiz-result");
+
+      quizForm.addEventListener("change", () => {
+        quizResult.textContent = "";
+      });
+
+      quizForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const answers = { q1: "b", q2: "c", q3: "a" };
+        const formData = new FormData(event.currentTarget);
+        const answeredCount = Object.keys(answers).filter((question) => formData.has(question)).length;
+        if (answeredCount < Object.keys(answers).length) {
+          quizResult.textContent = "Please answer all three questions before checking your answers.";
+          return;
+        }
+        const score = Object.entries(answers).filter(([question, answer]) => formData.get(question) === answer).length;
+        quizResult.textContent = score === 3
+          ? `Quiz score: ${score} / ${Object.keys(answers).length}. Great work on the privacy and ethics principles!`
+          : `Quiz score: ${score} / ${Object.keys(answers).length}. Review the computer laws and ethics sections, then try again.`;
       });
 
       document.getElementById("reset").addEventListener("click", () => {
-        locationInputs.find((input) => input.value === "always").checked = true;
-        Object.values(controls).forEach((input) => { input.checked = true; });
+        locationInputs.find((input) => input.value === "while").checked = true;
+        controls.background.checked = false;
+        controls.history.checked = true;
+        controls.sharing.checked = true;
+        controls.terms.checked = true;
         findingInputs.forEach((input) => { input.checked = false; });
         update();
         locationInputs[0].focus();
